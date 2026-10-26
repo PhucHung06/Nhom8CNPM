@@ -2,15 +2,15 @@
 import axiosClient from './axiosClient';
 
 export const authApi = {
-  // Gọi POST /api/auth/login
+  // baseURL đã bao gồm /api
   login: (credentials) => {
-    return axiosClient.post('/api/auth/login', credentials);
+    return axiosClient.post('/auth/login', credentials);
   },
 
-  // Gọi PUT /api/auth/change-password
+  // baseURL đã bao gồm /api
   changePassword: (payload, username) => {
     return axiosClient.put(
-      `/api/auth/change-password?username=${encodeURIComponent(username || '')}`,
+      `/auth/change-password?username=${encodeURIComponent(username || '')}`,
       payload
     );
   },

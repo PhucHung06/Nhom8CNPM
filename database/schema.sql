@@ -121,11 +121,27 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 -- ============================================================
 -- DỮ LIỆU KHỞI TẠO BAN ĐẦU (SEED DATA)
 -- ============================================================
--- Mật khẩu mặc định: Admin@2026 (Đã băm BCrypt)
-INSERT INTO users (username, password_hash, full_name, role, password_changed_at) VALUES
-('admin_01', '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a', 'Hoàng Phúc Hưng', 'ROLE_ADMIN', CURRENT_TIMESTAMP),
-('thungan_01', '$2a$10$wK1k6pY7B71kY8O1G/1.i.X6Kqv7fHqO79W68b3zGz3y5rF/G7z5K', 'Nguyễn Thu Ngân', 'ROLE_CASHIER'),
-('canbo_cudan', '$2a$10$wK1k6pY7B71kY8O1G/1.i.X6Kqv7fHqO79W68b3zGz3y5rF/G7z5K', 'Trần Quản Lý Cư Dân', 'ROLE_RESIDENT_MANAGER')
+-- Mật khẩu mặc định: BlueMoon@2026 (đã băm bằng BCrypt)
+INSERT INTO users (
+    username, password_hash, full_name, role, is_active, is_deleted,
+    password_changed_at, force_password_change
+) VALUES
+('admin_01', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
+    'Hoàng Phúc Hưng', 'ROLE_ADMIN', 1, 0, CURRENT_TIMESTAMP, 0),
+('thungan_01', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
+    'Nguyễn Thu Ngân', 'ROLE_CASHIER', 1, 0, CURRENT_TIMESTAMP, 0),
+('canbo_cudan', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
+    'Trần Quản Lý Cư Dân', 'ROLE_RESIDENT_MANAGER', 1, 0, CURRENT_TIMESTAMP, 0)
+ON DUPLICATE KEY UPDATE id = id;
+
+-- Tài khoản kiểm thử: mật khẩu đúng nhưng bị vô hiệu hóa.
+INSERT INTO users (
+    username, password_hash, full_name, role, is_active, is_deleted,
+    password_changed_at, force_password_change
+) VALUES (
+    'locked_user', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
+    'Nhân Viên Cũ', 'ROLE_RESIDENT_MANAGER', 0, 0, CURRENT_TIMESTAMP, 0
+)
 ON DUPLICATE KEY UPDATE id = id;
 
 -- Cấu hình phí mặc định theo SRS
