@@ -1,0 +1,23 @@
+# Java / Spring Boot
+server/target/
+*.class
+*.jar
+*.war
+.idea/
+*.iml
+*.iws
+out/
+.classpath
+.project
+.settings/
+
+# Node / React
+client/node_modules/
+client/dist/
+client/.env.local
+.npm/
+
+# Logs & OS Files
+*.log
+.DS_Store
+Thumbs.db
