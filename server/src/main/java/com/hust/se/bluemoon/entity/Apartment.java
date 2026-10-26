@@ -29,6 +29,9 @@ public class Apartment {
     @Column(name = "owner_name", nullable = false, length = 100)
     private String ownerName;
 
+    @Column(name = "owner_cccd", columnDefinition = "char(12)")
+    private String ownerCccd;
+
     @Column(name = "owner_phone", nullable = false, length = 15)
     private String ownerPhone;
 
