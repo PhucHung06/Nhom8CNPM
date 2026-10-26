@@ -86,6 +86,8 @@ public class InitialDataConfig implements ApplicationRunner {
         boolean defaultPassword = passwordEncoder.matches(DEFAULT_PASSWORD, storedPassword);
         if (legacyHash || legacyPlainText || defaultPassword) {
             user.setPasswordHash(passwordEncoder.encode(DEFAULT_PASSWORD));
+            user.setFullName(fullName);
+            user.setRole(role);
             user.setIsActive(active);
             user.setIsDeleted(deleted);
             user.setPasswordChangedAt(passwordChangedAt);
