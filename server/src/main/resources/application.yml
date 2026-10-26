@@ -14,9 +14,9 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/bluemoon_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&useUnicode=true&characterEncoding=utf8}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    url: jdbc:mysql://localhost:3306/bluemoon_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+    username: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

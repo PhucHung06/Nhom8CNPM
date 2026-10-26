@@ -13,7 +13,7 @@ public class ApartmentRequest {
     private Integer floor;
 
     @NotNull(message = "Diện tích không được để trống")
-    @DecimalMin(value = "0.1", message = "Diện tích căn hộ phải là số thực lớn hơn 0")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Diện tích căn hộ phải là số thực lớn hơn 0")
     private Double area;
 
     @NotBlank(message = "Họ tên chủ hộ không được để trống")
