@@ -1,11 +1,12 @@
 // FILE: client/src/App.jsx
 import React, { useState, useEffect } from 'react';
-import { Building2, KeyRound, ShieldCheck } from 'lucide-react';
+import { Building2, KeyRound, ShieldCheck, Users } from 'lucide-react';
 import AuthAndPasswordPage from './pages/AuthAndPasswordPage';
 import ApartmentListPage from './pages/ApartmentListPage';
+import ResidentListPage from './pages/ResidentListPage';
 
 function App() {
-  const [activeModule, setActiveModule] = useState('AUTH'); // 'AUTH' | 'APARTMENTS'
+  const [activeModule, setActiveModule] = useState('AUTH'); // 'AUTH' | 'APARTMENTS' | 'RESIDENTS'
   const [hasToken, setHasToken] = useState(
     () => Boolean(localStorage.getItem('accessToken'))
   );
@@ -50,7 +51,7 @@ function App() {
               </div>
             </div>
 
-            <nav className="flex items-center gap-2">
+            <nav className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
                 onClick={() => setActiveModule('APARTMENTS')}
@@ -62,6 +63,19 @@ function App() {
               >
                 <Building2 className="w-4 h-4" />
                 Quản lý Hộ gia đình & Căn hộ (US-001)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveModule('RESIDENTS')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer ${
+                  activeModule === 'RESIDENTS'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                Quản lý Nhân khẩu (US-002)
               </button>
 
               <button
@@ -86,6 +100,10 @@ function App() {
         {activeModule === 'APARTMENTS' && hasToken ? (
           <div className="max-w-7xl mx-auto p-6">
             <ApartmentListPage currentUser={{ role: userRole }} />
+          </div>
+        ) : activeModule === 'RESIDENTS' && hasToken ? (
+          <div className="max-w-7xl mx-auto p-6">
+            <ResidentListPage currentUser={{ role: userRole }} />
           </div>
         ) : (
           <AuthAndPasswordPage />
