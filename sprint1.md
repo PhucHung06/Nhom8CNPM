@@ -5,16 +5,18 @@
 > **Đơn vị thực hiện:** Nhóm 8 (Lớp 172881)  
 > **Thời gian Sprint 1:** 18/10/2026 – 01/11/2026 (15 ngày)  
 > **Ngày cập nhật:** 23/10/2026 (Giữa Sprint)  
-> **Trạng thái Sprint:** 🟡 **In Progress (Đang thực hiện)**  
+> **Trạng thái Sprint:** 🟡 **In Progress (Đang thực hiện)**
 
 ---
 
 ## 🎯 1. TỔNG QUAN & MỤC TIÊU SPRINT 1 (SPRINT GOAL)
 
 ### 1.1. Mục tiêu cốt lõi (Sprint Goal)
+
 > **"Thiết lập hoàn chỉnh nền tảng kiến trúc Client - Server (Spring Boot / MySQL & Vite React SPA), triển khai module Xác thực & Phân quyền người dùng (Đăng nhập, Đổi mật khẩu), và xây dựng các chức năng cốt lõi thuộc phân hệ Quản lý Căn hộ, Quản lý Nhân khẩu cùng Biến động Cư trú (Tạm trú / Tạm vắng)."**
 
 ### 1.2. Thông số Sprint 1 (Sprint Metrics)
+
 - **Tổng Story Points cam kết:** `19 SP`
 - **Số lượng User Stories / Tasks:** `5 tasks` (PB-016, US-014, US-001, US-002, US-003)
 - **Tiến độ đến ngày 23/10/2026:**
@@ -29,21 +31,22 @@
 
 ## 📊 2. BẢNG THEO DÕI TIẾN ĐỘ SPRINT 1 (SPRINT TRACKING BOARD)
 
-| AT RISK | TASK NAME | FEATURE TYPE | RESPONSIBLE | STORY POINTS | START | FINISH | DURATION | STATUS | COMMENTS & PHỤ THUỘC |
-| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| 🟢 | **Sprint 1: Nền tảng Hệ thống & Quản lý Cư dân (EPIC-01, EPIC-05)** | *Sprint Goal* | **Nhóm 8 (Team Lead)** | **19** | **18/10/2026** | **01/11/2026** | **15 ngày** | 🟡 **In Progress** | **Mục tiêu:** Thiết lập kiến trúc Java/MySQL, Đăng nhập và Quản lý Hộ gia đình, Nhân khẩu, Tạm trú/Tạm vắng (19 SP). |
-| 🟢 | **PB-016 (F-16) – Kiến trúc Desktop Java & CSDL MySQL** | Architecture *(Must)* | Backend / DB | 5 | 18/10/2026 | 21/10/2026 | 3 ngày | 🟢 **Done** | Khởi tạo khung mã nguồn Spring Boot, kết nối CSDL MySQL (schema.sql), mapping JPA Entities, Spring Security JWT filter. |
-| 🟡 | **US-014 (PB-014) – Đăng nhập & đổi mật khẩu** | Security / NFR *(Must)* | Fullstack | 3 | 21/10/2026 | 23/10/2026 | 2 ngày | 🟡 **In Progress** | Phụ thuộc: DB Tài khoản (PB-016) \| AC-037..039 \| Task: Màn hình đăng nhập, mã hóa BCrypt, JWT Stateless, đổi mật khẩu định kỳ (RAW-025, 028). |
-| 🟡 | **US-001 (PB-001) – Quản lý hộ gia đình & diện tích** | Core Feature *(Must)* | Fullstack | 3 | 23/10/2026 | 26/10/2026 | 3 ngày | 🟡 **In Progress** | Phụ thuộc: PB-016, US-014 \| AC-001..003 \| Task: Thiết kế bảng hộ gia đình/căn hộ, form thêm căn hộ & validate diện tích > 0 (RAW-001). |
-| 🟢 | **US-002 (PB-002) – Quản lý nhân khẩu** | Core Feature *(Must)* | Frontend/UI | 5 | 26/10/2026 | 29/10/2026 | 3 ngày | ⚪ **Not Started** | Phụ thuộc: US-001 \| AC-004..006 \| Task: Bảng nhân khẩu, form nhập liệu, dropdown quan hệ chủ hộ, kiểm tra trùng CCCD toàn tòa nhà (RAW-002, 003). |
-| 🟢 | **US-003 (PB-003) – Ghi nhận tạm trú / tạm vắng** | Core Feature *(Must)* | Backend/QA | 3 | 28/10/2026 | 01/11/2026 | 3 ngày | ⚪ **Not Started** | Phụ thuộc: US-001, US-002 \| AC-007..009 \| Task: Bảng biến động cư trú, form tạm trú/tạm vắng, validate ngày kết thúc >= bắt đầu (RAW-004, 005). |
+| AT RISK | TASK NAME                                                           |      FEATURE TYPE       |      RESPONSIBLE       | STORY POINTS |     START      |     FINISH     |  DURATION   |       STATUS       | COMMENTS & PHỤ THUỘC                                                                                                                                |
+| :-----: | :------------------------------------------------------------------ | :---------------------: | :--------------------: | :----------: | :------------: | :------------: | :---------: | :----------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   🟢    | **Sprint 1: Nền tảng Hệ thống & Quản lý Cư dân (EPIC-01, EPIC-05)** |      _Sprint Goal_      | **Nhóm 8 (Team Lead)** |    **19**    | **18/10/2026** | **01/11/2026** | **15 ngày** | 🟡 **In Progress** | **Mục tiêu:** Thiết lập kiến trúc Java/MySQL, Đăng nhập và Quản lý Hộ gia đình, Nhân khẩu, Tạm trú/Tạm vắng (19 SP).                                |
+|   🟢    | **PB-016 (F-16) – Kiến trúc Desktop Java & CSDL MySQL**             |  Architecture _(Must)_  |      Backend / DB      |      5       |   18/10/2026   |   21/10/2026   |   3 ngày    |    🟢 **Done**     | Khởi tạo khung mã nguồn Spring Boot, kết nối CSDL MySQL (schema.sql), mapping JPA Entities, Spring Security JWT filter.                             |
+|   🟡    | **US-014 (PB-014) – Đăng nhập & đổi mật khẩu**                      | Security / NFR _(Must)_ |       Fullstack        |      3       |   21/10/2026   |   23/10/2026   |   2 ngày    |    🟢 **Done**     | Phụ thuộc: DB Tài khoản (PB-016) \| AC-037..039 \| Task: Màn hình đăng nhập, mã hóa BCrypt, JWT Stateless, đổi mật khẩu định kỳ (RAW-025, 028).     |
+|   🟡    | **US-001 (PB-001) – Quản lý hộ gia đình & diện tích**               |  Core Feature _(Must)_  |       Fullstack        |      3       |   23/10/2026   |   26/10/2026   |   3 ngày    | 🟡 **In Progress** | Phụ thuộc: PB-016, US-014 \| AC-001..003 \| Task: Thiết kế bảng hộ gia đình/căn hộ, form thêm căn hộ & validate diện tích > 0 (RAW-001).            |
+|   🟢    | **US-002 (PB-002) – Quản lý nhân khẩu**                             |  Core Feature _(Must)_  |      Frontend/UI       |      5       |   26/10/2026   |   29/10/2026   |   3 ngày    | ⚪ **Not Started** | Phụ thuộc: US-001 \| AC-004..006 \| Task: Bảng nhân khẩu, form nhập liệu, dropdown quan hệ chủ hộ, kiểm tra trùng CCCD toàn tòa nhà (RAW-002, 003). |
+|   🟢    | **US-003 (PB-003) – Ghi nhận tạm trú / tạm vắng**                   |  Core Feature _(Must)_  |       Backend/QA       |      3       |   28/10/2026   |   01/11/2026   |   3 ngày    | ⚪ **Not Started** | Phụ thuộc: US-001, US-002 \| AC-007..009 \| Task: Bảng biến động cư trú, form tạm trú/tạm vắng, validate ngày kết thúc >= bắt đầu (RAW-004, 005).   |
 
 ---
 
 ## 🔍 3. CHI TIẾT TỪNG HẠNG MỤC CÔNG VIỆC (TASK BREAKDOWN & WORK PACKAGES)
 
 ### 3.1. PB-016 (F-16): Kiến trúc Desktop Java & CSDL MySQL (5 SP)
-- **Loại:** Architecture / NFR *(Must have)*
+
+- **Loại:** Architecture / NFR _(Must have)_
 - **Thời gian:** 18/10/2026 – 21/10/2026
 - **Trạng thái:** 🟢 **ĐÃ HOÀN THÀNH (Done)**
 - **Người thực hiện:** Mai Huy Hoàng, Hoàng Phúc Hưng
@@ -59,7 +62,8 @@
 ---
 
 ### 3.2. US-014 (PB-014): Đăng nhập & Đổi mật khẩu (3 SP)
-- **Loại:** Security / NFR *(Must have)*
+
+- **Loại:** Security / NFR _(Must have)_
 - **Thời gian:** 21/10/2026 – 23/10/2026
 - **Trạng thái:** 🟡 **In Progress (Đang hoàn thiện tích hợp Frontend & Test)**
 - **Người thực hiện:** Mai Huy Hoàng (Backend), Đào An Huy (Frontend)
@@ -78,7 +82,8 @@
 ---
 
 ### 3.3. US-001 (PB-001): Quản lý Hộ gia đình & Diện tích Căn hộ (3 SP)
-- **Loại:** Core Feature *(Must have)*
+
+- **Loại:** Core Feature _(Must have)_
 - **Thời gian:** 23/10/2026 – 26/10/2026
 - **Trạng thái:** 🟡 **In Progress (Bắt đầu xây dựng UI & hoàn thiện Service)**
 - **Người thực hiện:** Nguyễn Trung Khang (Fullstack), Đào An Huy (Frontend)
@@ -97,7 +102,8 @@
 ---
 
 ### 3.4. US-002 (PB-002): Quản lý Nhân khẩu (5 SP)
-- **Loại:** Core Feature *(Must have)*
+
+- **Loại:** Core Feature _(Must have)_
 - **Thời gian:** 26/10/2026 – 29/10/2026
 - **Trạng thái:** ⚪ **Not Started (Sẵn sàng triển khai sau US-001)**
 - **Người thực hiện:** Nguyễn Trung Khang (Fullstack), Đào An Huy (Frontend)
@@ -116,7 +122,8 @@
 ---
 
 ### 3.5. US-003 (PB-003): Ghi nhận Tạm trú / Tạm vắng (3 SP)
-- **Loại:** Core Feature *(Must have)*
+
+- **Loại:** Core Feature _(Must have)_
 - **Thời gian:** 28/10/2026 – 01/11/2026
 - **Trạng thái:** ⚪ **Not Started (Chờ phụ thuộc US-001, US-002)**
 - **Người thực hiện:** Đỗ Trọng Minh Quân (Backend), Nguyễn Đức Quang (Fullstack/QA)
@@ -155,14 +162,15 @@ gantt
 ```
 
 ### Chi tiết các mốc ngày làm việc:
+
 - **18/10 – 21/10 (Ngày 1 - 3):**
   - Khởi tạo repo, phân quyền nhánh Git Flow (`develop`, `feature/*`).
   - Viết `schema.sql`, tạo database MySQL, tạo các Entity và kết nối Spring Boot.
-  - *Kết quả:* PB-016 nghiệm thu thành công ngày 21/10.
+  - _Kết quả:_ PB-016 nghiệm thu thành công ngày 21/10.
 - **21/10 – 23/10 (Ngày 4 - 6):**
   - Hoàn thiện AuthService, mã hóa BCrypt, cấu hình JwtTokenProvider.
   - Xây dựng giao diện Login React, kết nối Axios gọi API đăng nhập.
-  - *Mục tiêu ngày 23/10:* Chốt tính năng US-014.
+  - _Mục tiêu ngày 23/10:_ Chốt tính năng US-014.
 - **23/10 – 26/10 (Ngày 6 - 9):**
   - Hoàn thiện trọn vẹn CRUD Căn hộ (ApartmentService, Controller, Repository).
   - Xây dựng UI Danh sách Căn hộ, Form thêm căn hộ có validate diện tích `area > 0`.
@@ -182,18 +190,19 @@ gantt
 
 ## 🛡️ 5. QUẢN TRỊ RỦI RO (RISK MANAGEMENT)
 
-| Mã Rủi Ro | Nguy cơ / Mô tả Rủi ro | Mức độ | Kế hoạch Phòng ngừa & Giảm thiểu (Mitigation Plan) |
-| :---: | :--- | :---: | :--- |
-| **RSK-01** | Trùng lặp CCCD do nhập liệu đồng thời từ nhiều nguồn | **Cao** | Thiết lập Unique Index `idx_resident_cccd` ở tầng DB MySQL, kết hợp bắt ngoại lệ `DataIntegrityViolationException` tại `GlobalExceptionHandler`. |
-| **RSK-02** | Xung đột Merge Code khi nhiều bạn cùng làm Frontend Client | **Trung bình** | Chia nhỏ thành các component riêng biệt (`ApartmentTable.jsx`, `ResidentModal.jsx`), tuân thủ Git Flow: mỗi task một branch `feature/fe-*` riêng, tạo PR và review trước khi merge vào `develop`. |
-| **RSK-03** | Hết hạn Token hoặc mất trạng thái đăng nhập khi F5 trình duyệt | **Trung bình** | Cấu hình lưu JWT an toàn trong localStorage kèm thời hạn hợp lý, có Axios interceptor tự động bắt mã lỗi 401/403 để điều hướng về `/login`. |
-| **RSK-04** | Trễ hạn chặng cuối (US-002 và US-003 dồn vào cuối Sprint) | **Cao** | Bắt đầu song song Backend cho US-002 ngay khi US-001 hoàn thành phần API; phân bổ Đỗ Trọng Minh Quân hỗ trợ viết test và kiểm thử nghiệp vụ cư trú. |
+| Mã Rủi Ro  | Nguy cơ / Mô tả Rủi ro                                         |     Mức độ     | Kế hoạch Phòng ngừa & Giảm thiểu (Mitigation Plan)                                                                                                                                                |
+| :--------: | :------------------------------------------------------------- | :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **RSK-01** | Trùng lặp CCCD do nhập liệu đồng thời từ nhiều nguồn           |    **Cao**     | Thiết lập Unique Index `idx_resident_cccd` ở tầng DB MySQL, kết hợp bắt ngoại lệ `DataIntegrityViolationException` tại `GlobalExceptionHandler`.                                                  |
+| **RSK-02** | Xung đột Merge Code khi nhiều bạn cùng làm Frontend Client     | **Trung bình** | Chia nhỏ thành các component riêng biệt (`ApartmentTable.jsx`, `ResidentModal.jsx`), tuân thủ Git Flow: mỗi task một branch `feature/fe-*` riêng, tạo PR và review trước khi merge vào `develop`. |
+| **RSK-03** | Hết hạn Token hoặc mất trạng thái đăng nhập khi F5 trình duyệt | **Trung bình** | Cấu hình lưu JWT an toàn trong localStorage kèm thời hạn hợp lý, có Axios interceptor tự động bắt mã lỗi 401/403 để điều hướng về `/login`.                                                       |
+| **RSK-04** | Trễ hạn chặng cuối (US-002 và US-003 dồn vào cuối Sprint)      |    **Cao**     | Bắt đầu song song Backend cho US-002 ngay khi US-001 hoàn thành phần API; phân bổ Đỗ Trọng Minh Quân hỗ trợ viết test và kiểm thử nghiệp vụ cư trú.                                               |
 
 ---
 
 ## ✅ 6. ĐỊNH NGHĨA HOÀN THÀNH (DEFINITION OF DONE - DoD)
 
 Một User Story được coi là **HOÀN THÀNH (DONE)** trong Sprint 1 khi và chỉ khi:
+
 1. **Source Code:** Mã nguồn được commit theo chuẩn Conventional Commits và merge vào nhánh `develop` thông qua Pull Request được duyệt (ít nhất 1 reviewer phê duyệt).
 2. **Database:** Mọi trường dữ liệu và ràng buộc (Unique, Check, Foreign Key) hoạt động chính xác, không gây lỗi deadlock hoặc vi phạm toàn vẹn dữ liệu.
 3. **Acceptance Criteria:** Vượt qua 100% các tiêu chí chấp nhận được định nghĩa trong tài liệu SRS (AC-001 đến AC-009, AC-037 đến AC-039).

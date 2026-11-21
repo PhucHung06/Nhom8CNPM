@@ -1,5 +1,5 @@
 // FILE: client/src/pages/AuthAndPasswordPage.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Lock,
@@ -14,6 +14,23 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { authApi } from '../api/authApi';
+
+const SESSION_STORAGE_KEY = 'authSession';
+
+function isTokenExpired(token) {
+  const payload = token.split('.')[1];
+  if (!payload) return true;
+
+  try {
+    const decodedPayload = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    );
+    return typeof decodedPayload.exp === 'number'
+      && decodedPayload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+}
 
 export default function AuthAndPasswordPage() {
   const [session, setSession] = useState(null);
@@ -39,6 +56,34 @@ export default function AuthAndPasswordPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [apiAlert, setApiAlert] = useState({ type: '', message: '' });
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const storedSession = localStorage.getItem(SESSION_STORAGE_KEY);
+
+    if (!token || isTokenExpired(token) || !storedSession) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+      return;
+    }
+
+    try {
+      const restoredSession = JSON.parse(storedSession);
+      if (!restoredSession?.username || !restoredSession?.role) {
+        throw new Error('Invalid stored session');
+      }
+
+      setSession({ ...restoredSession, accessToken: token });
+      if (restoredSession.passwordExpired) {
+        setActiveTab('CHANGE_PASSWORD');
+      }
+    } catch {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem(SESSION_STORAGE_KEY);
+    }
+  }, []);
 
   // Validate Form Đăng nhập theo đúng đặc tả UC001 trong SRS
   const validateLogin = () => {
@@ -111,6 +156,7 @@ export default function AuthAndPasswordPage() {
 
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('userRole', data.role);
+      localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data));
       setSession(data);
 
       // Kiểm tra hạn mật khẩu định kỳ 90 ngày
@@ -128,11 +174,11 @@ export default function AuthAndPasswordPage() {
       }
     } catch (error) {
       if (!error.response) {
-        // Luồng 6a trong SRS: Mất kết nối Backend / MySQL
+        // The API is unavailable; the frontend cannot determine whether MySQL is down.
         setApiAlert({
           type: 'error',
           message:
-            'Không thể kết nối đến máy chủ CSDL MySQL. Vui lòng kiểm tra đường truyền mạng',
+            'Không thể kết nối đến máy chủ API. Vui lòng kiểm tra backend đang chạy tại http://localhost:8080',
         });
       } else {
         setApiAlert({
@@ -164,11 +210,13 @@ export default function AuthAndPasswordPage() {
       });
 
       if (session) {
-        setSession({
+        const updatedSession = {
           ...session,
           passwordExpired: false,
           daysSinceLastChange: 0,
-        });
+        };
+        setSession(updatedSession);
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updatedSession));
       }
       setActiveTab('LOGIN');
       setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -188,6 +236,7 @@ export default function AuthAndPasswordPage() {
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('userRole');
+    localStorage.removeItem(SESSION_STORAGE_KEY);
     setSession(null);
     setActiveTab('LOGIN');
     setLoginForm({ username: '', password: '' });

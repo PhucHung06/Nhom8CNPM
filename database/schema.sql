@@ -28,10 +28,12 @@ CREATE TABLE IF NOT EXISTS apartments (
     floor INT NOT NULL,
     area DOUBLE NOT NULL CHECK (area > 0),
     owner_name VARCHAR(100) NOT NULL,
+    owner_cccd CHAR(12) NULL,
     owner_phone VARCHAR(15) NOT NULL,
     status ENUM('EMPTY', 'OCCUPIED') DEFAULT 'OCCUPIED',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_apartment_code (apartment_code)
+    INDEX idx_apartment_code (apartment_code),
+    INDEX idx_apartment_owner_name (owner_name)
 );
 
 -- 3. Bảng Nhân khẩu (UC004, UC005)
