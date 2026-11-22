@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/residents")
@@ -18,6 +19,11 @@ import java.util.List;
 public class ResidentController {
 
     private final ResidentService residentService;
+
+    @GetMapping
+    public ResponseEntity<List<Resident>> getAllResidents() {
+        return ResponseEntity.ok(residentService.getAllActiveResidents());
+    }
 
     @GetMapping("/apartment/{apartmentId}")
     public ResponseEntity<List<Resident>> getResidentsByApartment(@PathVariable Integer apartmentId) {
@@ -27,6 +33,17 @@ public class ResidentController {
     @PostMapping
     public ResponseEntity<Resident> addResident(@Valid @RequestBody ResidentRequest request) {
         return ResponseEntity.ok(residentService.addResident(request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deactivateResident(@PathVariable Integer id) {
+        residentService.deactivateResident(id);
+        return ResponseEntity.ok(Map.of("message", "Đã cập nhật chuyển đi cho nhân khẩu"));
+    }
+
+    @GetMapping("/{residentId}/residency-logs")
+    public ResponseEntity<List<ResidencyLog>> getResidencyLogs(@PathVariable Integer residentId) {
+        return ResponseEntity.ok(residentService.getResidencyLogsByResident(residentId));
     }
 
     @PostMapping("/residency-log")

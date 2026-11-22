@@ -1,5 +1,6 @@
 package com.hust.se.bluemoon.service;
 
+import com.hust.se.bluemoon.aspect.LogAudit;
 import com.hust.se.bluemoon.dto.ResidencyLogRequest;
 import com.hust.se.bluemoon.dto.ResidentRequest;
 import com.hust.se.bluemoon.entity.Apartment;
@@ -23,16 +24,24 @@ public class ResidentService {
     private final ApartmentRepository apartmentRepository;
     private final ResidencyLogRepository residencyLogRepository;
 
+    public List<Resident> getAllActiveResidents() {
+        return residentRepository.findByIsActiveTrue();
+    }
+
     public List<Resident> getResidentsByApartment(Integer apartmentId) {
         return residentRepository.findByApartmentIdAndIsActiveTrue(apartmentId);
     }
 
+    public List<ResidencyLog> getResidencyLogsByResident(Integer residentId) {
+        return residencyLogRepository.findByResidentIdOrderByCreatedAtDesc(residentId);
+    }
+
     @Transactional
+    @LogAudit(action = "ADD_RESIDENT", targetTable = "residents")
     public Resident addResident(ResidentRequest request) {
         Apartment apartment = apartmentRepository.findById(request.getApartmentId())
                 .orElseThrow(() -> new RuntimeException("Căn hộ không tồn tại"));
 
-        // Ràng buộc UC004: Kiểm tra chặn trùng số CCCD trên toàn tòa nhà
         if (request.getCccdNumber() != null && !request.getCccdNumber().isBlank()) {
             if (residentRepository.existsByCccdNumberAndIsActiveTrue(request.getCccdNumber())) {
                 throw new RuntimeException("Số CCCD '" + request.getCccdNumber() + "' đã được đăng ký cho một cư dân khác trong tòa nhà");
@@ -53,6 +62,16 @@ public class ResidentService {
     }
 
     @Transactional
+    @LogAudit(action = "DEACTIVATE_RESIDENT", targetTable = "residents")
+    public void deactivateResident(Integer id) {
+        Resident resident = residentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Nhân khẩu không tồn tại"));
+        resident.setIsActive(false);
+        residentRepository.save(resident);
+    }
+
+    @Transactional
+    @LogAudit(action = "RECORD_RESIDENCY_LOG", targetTable = "residency_logs")
     public ResidencyLog recordResidencyLog(ResidencyLogRequest request) {
         Resident resident = residentRepository.findById(request.getResidentId())
                 .orElseThrow(() -> new RuntimeException("Nhân khẩu không tồn tại"));
@@ -61,7 +80,6 @@ public class ResidentService {
             throw new RuntimeException("Ngày kết thúc phải diễn ra sau hoặc cùng ngày bắt đầu");
         }
 
-        // Cập nhật trạng thái cư trú hiện tại của nhân khẩu
         resident.setResidenceStatus(request.getLogType());
         residentRepository.save(resident);
 

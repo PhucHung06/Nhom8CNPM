@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ResidentRepository extends JpaRepository<Resident, Integer> {
+    List<Resident> findByIsActiveTrue();
     List<Resident> findByApartmentIdAndIsActiveTrue(Integer apartmentId);
     Optional<Resident> findByCccdNumberAndIsActiveTrue(String cccdNumber);
     boolean existsByCccdNumberAndIsActiveTrue(String cccdNumber);
