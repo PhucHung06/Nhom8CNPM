@@ -20,6 +20,8 @@
 
     <properties>
         <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jjwt.version>0.12.5</jjwt.version>
         <poi.version>5.4.0</poi.version>
         <openpdf.version>1.4.2</openpdf.version>
@@ -84,6 +86,16 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Database migrations -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+
         <!-- Export Excel (Apache POI) & PDF (OpenPDF) -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -116,8 +128,26 @@
         </dependency>
     </dependencies>
 
+    
     <build>
         <plugins>
+            <!-- Xử lý annotation và code được Lombok sinh ra -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
