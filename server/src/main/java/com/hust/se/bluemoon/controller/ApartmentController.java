@@ -31,4 +31,9 @@ public class ApartmentController {
     public ResponseEntity<Apartment> createApartment(@Valid @RequestBody ApartmentRequest request) {
         return ResponseEntity.ok(apartmentService.createApartment(request));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Apartment> updateApartment(@PathVariable Integer id, @Valid @RequestBody ApartmentRequest request) {
+        return ResponseEntity.ok(apartmentService.updateApartment(id, request));
+    }
 }

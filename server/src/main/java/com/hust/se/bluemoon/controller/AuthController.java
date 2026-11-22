@@ -1,5 +1,6 @@
 package com.hust.se.bluemoon.controller;
 
+import com.hust.se.bluemoon.dto.ChangePasswordRequest;
 import com.hust.se.bluemoon.dto.LoginRequest;
 import com.hust.se.bluemoon.dto.LoginResponse;
 import com.hust.se.bluemoon.service.AuthService;
@@ -18,12 +19,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = authService.authenticate(request);
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công"));
     }
 }
