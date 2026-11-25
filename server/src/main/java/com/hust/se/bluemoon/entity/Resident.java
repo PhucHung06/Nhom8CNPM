@@ -30,10 +30,10 @@ public class Resident {
     @Column(nullable = false)
     private LocalDate dob;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, columnDefinition = "ENUM('Nam', 'Nữ', 'Khác')")
     private String gender;
 
-    @Column(name = "cccd_number", length = 12, unique = true)
+    @Column(name = "cccd_number", columnDefinition = "char(12)", unique = true)
     private String cccdNumber;
 
     @Column(name = "relationship_with_owner", nullable = false, length = 50)

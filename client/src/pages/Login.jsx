@@ -16,7 +16,9 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await axiosClient.post('/auth/login', { username, password });
-      localStorage.setItem('token', res.data.token);
+      const token = res.data.accessToken || res.data.token;
+      localStorage.setItem('accessToken', token);
+      localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify({
         username: res.data.username,
         fullName: res.data.fullName,

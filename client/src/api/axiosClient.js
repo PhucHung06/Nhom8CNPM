@@ -12,7 +12,7 @@ const axiosClient = axios.create({
 // Tự động đính kèm JWT Token vào mọi request gửi lên Spring Boot
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken'); // Khớp với LoginResponse DTO
+    const token = localStorage.getItem('accessToken') || localStorage.getItem('token'); // Khớp với LoginResponse DTO
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

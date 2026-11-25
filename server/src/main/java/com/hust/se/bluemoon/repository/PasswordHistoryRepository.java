@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PasswordHistoryRepository extends JpaRepository<PasswordHistory, Integer> {
+public interface PasswordHistoryRepository extends JpaRepository<PasswordHistory, Long> {
 
     // Lấy 3 mật khẩu gần nhất của user để kiểm tra không trùng lặp khi đổi định kỳ
     List<PasswordHistory> findTop3ByUserIdOrderByChangedAtDesc(Integer userId);

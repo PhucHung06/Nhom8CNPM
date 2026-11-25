@@ -37,7 +37,7 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().name(), user.getFullName());
 
         return LoginResponse.builder()
-                .token(token)
+                .accessToken(token)
                 .tokenType("Bearer")
                 .username(user.getUsername())
                 .fullName(user.getFullName())

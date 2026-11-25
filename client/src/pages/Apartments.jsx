@@ -191,8 +191,8 @@ export default function Apartments() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-5 bg-white border border-slate-200 rounded-lg p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="lg:col-span-4 bg-white border border-slate-200 rounded-lg p-4">
           <div className="relative mb-3">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
             <input
@@ -208,10 +208,10 @@ export default function Apartments() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
                 <tr>
-                  <th className="py-2 px-3">Mã căn</th>
-                  <th className="py-2 px-3">Chủ hộ</th>
-                  <th className="py-2 px-3">Diện tích</th>
-                  <th className="py-2 px-3 text-right">Sửa</th>
+                  <th className="py-2 px-2.5 whitespace-nowrap">Mã căn</th>
+                  <th className="py-2 px-2.5">Chủ hộ</th>
+                  <th className="py-2 px-2.5 whitespace-nowrap">Diện tích</th>
+                  <th className="py-2 px-2.5 text-right whitespace-nowrap">Sửa</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -219,18 +219,18 @@ export default function Apartments() {
                   <tr
                     key={apt.id}
                     onClick={() => handleSelectApartment(apt)}
-                    className={`cursor-pointer ${selectedApt?.id === apt.id ? 'bg-blue-50' : ''}`}
+                    className={`cursor-pointer hover:bg-slate-50 transition ${selectedApt?.id === apt.id ? 'bg-blue-50' : ''}`}
                   >
-                    <td className="py-2.5 px-3 font-semibold text-blue-700">{apt.apartmentCode}</td>
-                    <td className="py-2.5 px-3">
-                      <div className="font-medium text-slate-800">{apt.ownerName}</div>
-                      <div className="text-xs text-slate-500">{apt.ownerPhone}</div>
+                    <td className="py-2.5 px-2.5 font-semibold text-blue-700 whitespace-nowrap">{apt.apartmentCode}</td>
+                    <td className="py-2.5 px-2.5">
+                      <div className="font-medium text-slate-800 truncate max-w-[130px]">{apt.ownerName}</div>
+                      <div className="text-xs text-slate-500 whitespace-nowrap">{apt.ownerPhone}</div>
                     </td>
-                    <td className="py-2.5 px-3">{apt.area} m²</td>
-                    <td className="py-2.5 px-3 text-right">
+                    <td className="py-2.5 px-2.5 whitespace-nowrap">{apt.area} m²</td>
+                    <td className="py-2.5 px-2.5 text-right whitespace-nowrap">
                       <button
                         onClick={(e) => openEditApt(apt, e)}
-                        className="p-1.5 text-slate-600 border border-slate-200 rounded"
+                        className="p-1.5 text-slate-600 hover:bg-slate-100 border border-slate-200 rounded"
                         title="Chỉnh sửa căn hộ"
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -250,7 +250,7 @@ export default function Apartments() {
           </div>
         </div>
 
-        <div className="lg:col-span-7 bg-white border border-slate-200 rounded-lg p-4">
+        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-lg p-4">
           {!selectedApt ? (
             <div className="h-64 flex flex-col items-center justify-center text-slate-400 text-sm">
               <Users className="w-8 h-8 mb-2" />
@@ -260,14 +260,19 @@ export default function Apartments() {
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-200">
                 <div>
-                  <h2 className="text-base font-bold text-slate-800">
-                    Nhân khẩu căn hộ {selectedApt.apartmentCode} (Tầng {selectedApt.floor} - {selectedApt.area} m²)
-                  </h2>
-                  <p className="text-xs text-slate-500">Chủ hộ: {selectedApt.ownerName} • SĐT: {selectedApt.ownerPhone}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base font-bold text-slate-800">
+                      Nhân khẩu căn hộ {selectedApt.apartmentCode}
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium whitespace-nowrap">
+                      Tầng {selectedApt.floor} • {selectedApt.area} m²
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">Chủ hộ: {selectedApt.ownerName} • SĐT: {selectedApt.ownerPhone}</p>
                 </div>
                 <button
                   onClick={() => { setModalError(''); setResModalOpen(true); }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded whitespace-nowrap"
                 >
                   <Plus className="w-3.5 h-3.5" /> Thêm nhân khẩu
                 </button>
@@ -278,43 +283,45 @@ export default function Apartments() {
                   <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
                     <tr>
                       <th className="py-2 px-3">Họ và tên</th>
-                      <th className="py-2 px-3">CCCD (12 số)</th>
-                      <th className="py-2 px-3">Quan hệ</th>
-                      <th className="py-2 px-3">Trạng thái</th>
-                      <th className="py-2 px-3 text-right">Thao tác</th>
+                      <th className="py-2 px-3 whitespace-nowrap">CCCD (12 số)</th>
+                      <th className="py-2 px-3 whitespace-nowrap">Quan hệ</th>
+                      <th className="py-2 px-3 whitespace-nowrap">Trạng thái</th>
+                      <th className="py-2 px-3 text-right whitespace-nowrap">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {residents.map((res) => {
                       const st = STATUS_LABELS[res.residenceStatus] || STATUS_LABELS.THUONG_TRU;
                       return (
-                        <tr key={res.id}>
+                        <tr key={res.id} className="hover:bg-slate-50">
                           <td className="py-2.5 px-3">
-                            <div className="font-medium text-slate-800">{res.fullName}</div>
-                            <div className="text-xs text-slate-500">{res.gender} • {res.dob}</div>
+                            <div className="font-medium text-slate-800 whitespace-nowrap">{res.fullName}</div>
+                            <div className="text-xs text-slate-500 whitespace-nowrap">{res.gender} • {res.dob}</div>
                           </td>
-                          <td className="py-2.5 px-3 font-mono text-xs">{res.cccdNumber || 'Chưa cấp'}</td>
-                          <td className="py-2.5 px-3">{res.relationshipWithOwner}</td>
-                          <td className="py-2.5 px-3">
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${st.cls}`}>
+                          <td className="py-2.5 px-3 font-mono text-xs whitespace-nowrap">{res.cccdNumber || 'Chưa cấp'}</td>
+                          <td className="py-2.5 px-3 whitespace-nowrap">{res.relationshipWithOwner}</td>
+                          <td className="py-2.5 px-3 whitespace-nowrap">
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${st.cls}`}>
                               {st.text}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 text-right space-x-1">
-                            <button
-                              onClick={() => openResidencyModal(res)}
-                              className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-slate-300 rounded text-slate-700"
-                              title="Tạm trú / Tạm vắng"
-                            >
-                              <CalendarClock className="w-3.5 h-3.5" /> Biến động
-                            </button>
-                            <button
-                              onClick={() => handleDeactivateResident(res.id)}
-                              className="inline-flex items-center p-1 text-xs border border-red-200 rounded text-red-600"
-                              title="Chuyển đi"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                          <td className="py-2.5 px-3 text-right whitespace-nowrap">
+                            <div className="inline-flex items-center gap-1.5">
+                              <button
+                                onClick={() => openResidencyModal(res)}
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-slate-300 hover:bg-slate-100 rounded text-slate-700 whitespace-nowrap"
+                                title="Tạm trú / Tạm vắng"
+                              >
+                                <CalendarClock className="w-3.5 h-3.5" /> Biến động
+                              </button>
+                              <button
+                                onClick={() => handleDeactivateResident(res.id)}
+                                className="inline-flex items-center p-1 text-xs border border-red-200 hover:bg-red-50 rounded text-red-600"
+                                title="Chuyển đi"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
