@@ -12,17 +12,16 @@ import java.util.Optional;
 
 @Repository
 public interface ApartmentRepository extends JpaRepository<Apartment, Integer> {
-    Optional<Apartment> findByApartmentCode(String apartmentCode);
 
-    boolean existsByApartmentCode(String apartmentCode);
+    Optional<Apartment> findByIdAndIsDeletedFalse(Integer id);
 
-    boolean existsByApartmentCodeAndIdNot(String apartmentCode, Integer id);
+    boolean existsByApartmentCodeAndIsDeletedFalse(String apartmentCode);
 
-    @Query("SELECT a FROM Apartment a WHERE " +
-            "(:keyword IS NULL OR :keyword = '' OR " +
-            "LOWER(a.apartmentCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(a.ownerName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "a.ownerPhone LIKE CONCAT('%', :keyword, '%')) " +
+    boolean existsByApartmentCodeAndIdNotAndIsDeletedFalse(String apartmentCode, Integer id);
+
+    @Query("SELECT a FROM Apartment a WHERE a.isDeleted = false " +
+            "AND (:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(a.apartmentCode) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
             "AND (:status IS NULL OR a.status = :status) " +
             "AND (:floor IS NULL OR a.floor = :floor) " +
             "ORDER BY a.floor ASC, a.apartmentCode ASC")

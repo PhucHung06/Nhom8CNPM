@@ -1,7 +1,9 @@
 package com.hust.se.bluemoon.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -14,7 +16,7 @@ import java.time.temporal.ChronoUnit;
 @Builder
 public class User {
 
-    public static final long MAX_PASSWORD_AGE_DAYS = 90L; // Chu kỳ đổi mật khẩu định kỳ: 90 ngày
+    public static final long MAX_PASSWORD_AGE_DAYS = 90L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +25,18 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 100)
+    @JsonIgnore
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
+
+    @Column(unique = true, length = 120)
+    private String email;
+
+    @Column(length = 15)
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
@@ -41,15 +50,19 @@ public class User {
     @Builder.Default
     private Boolean isDeleted = false;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "approval_status", nullable = false, length = 20)
+    @Builder.Default
+    private ApprovalStatus approvalStatus = ApprovalStatus.APPROVED;
 
-    @PrePersist
-    protected void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.passwordChangedAt = now;
-    }
+    @Column(name = "email_verified", nullable = false)
+    @Builder.Default
+    private Boolean emailVerified = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "household_id")
+    @JsonIgnore
+    private Household household;
 
     @Column(name = "password_changed_at", nullable = false)
     @Builder.Default
@@ -59,7 +72,18 @@ public class User {
     @Builder.Default
     private Boolean forcePasswordChange = false;
 
-    // Hàm tiện ích tính số ngày từ lần đổi mật khẩu gần nhất
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        if (this.passwordChangedAt == null) {
+            this.passwordChangedAt = now;
+        }
+    }
+
     public long getDaysSinceLastPasswordChange() {
         if (this.passwordChangedAt == null) {
             return MAX_PASSWORD_AGE_DAYS + 1;
@@ -67,7 +91,6 @@ public class User {
         return ChronoUnit.DAYS.between(this.passwordChangedAt, LocalDateTime.now());
     }
 
-    // Kiểm tra mật khẩu đã quá hạn định kỳ 90 ngày hoặc bị bắt buộc đổi hay chưa
     public boolean isPasswordExpired() {
         return Boolean.TRUE.equals(this.forcePasswordChange)
                 || getDaysSinceLastPasswordChange() >= MAX_PASSWORD_AGE_DAYS;

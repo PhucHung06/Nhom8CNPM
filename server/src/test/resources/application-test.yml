@@ -1,0 +1,30 @@
+spring:
+  flyway:
+    enabled: false
+  datasource:
+    url: jdbc:h2:mem:bluemoon_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: localhost
+    port: 2525
+    username: test@bluemoon.vn
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration-ms: 86400000
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+  otp:
+    expiration-minutes: 5
+    dev-log-enabled: false

@@ -1,114 +1,104 @@
 -- ============================================================
--- HỆ THỐNG QUẢN LÝ THU PHÍ CHUNG CƯ BLUEMOON v1.0
--- Database: bluemoon_db
+-- HỆ THỐNG QUẢN LÝ CHUNG CƯ BLUEMOON — WEB SERVER v1.0
+-- Đồng bộ kiến trúc agile_plan.md (Sprint 1: PB-001 -> PB-005)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS bluemoon_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE bluemoon_db;
 
--- 1. Bảng Người dùng & Phân quyền (RBAC - UC001, UC016)
+-- 1. Bảng Căn hộ (PB-003)
+CREATE TABLE IF NOT EXISTS apartments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    apartment_code VARCHAR(20) NOT NULL UNIQUE,
+    floor INT NOT NULL,
+    area DOUBLE NOT NULL CHECK (area > 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE', -- AVAILABLE / OCCUPIED
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_apartment_code (apartment_code),
+    INDEX idx_apartment_status (status)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 2. Bảng Hộ gia đình (PB-004: Move-in / Move-out)
+CREATE TABLE IF NOT EXISTS households (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    apartment_id INT NOT NULL,
+    head_name VARCHAR(100) NOT NULL,
+    head_cccd VARCHAR(12) NOT NULL,
+    phone VARCHAR(15) NOT NULL,
+    move_in_date DATE NOT NULL,
+    move_out_date DATE NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE / MOVED_OUT
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_household_apartment FOREIGN KEY (apartment_id) REFERENCES apartments(id),
+    INDEX idx_household_apartment_status (apartment_id, status),
+    INDEX idx_household_head_cccd (head_cccd)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 3. Bảng Người dùng & Phân quyền RBAC (PB-002: ADMIN / RESIDENT)
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    role ENUM('ROLE_ADMIN', 'ROLE_CASHIER', 'ROLE_RESIDENT_MANAGER') NOT NULL,
-    is_active TINYINT(1) DEFAULT 1,
-    is_deleted TINYINT(1) DEFAULT 0,
+    email VARCHAR(120) NULL UNIQUE,
+    phone VARCHAR(15) NULL,
+    role VARCHAR(30) NOT NULL, -- ADMIN / RESIDENT
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    approval_status VARCHAR(20) NOT NULL DEFAULT 'APPROVED', -- PENDING / APPROVED / REJECTED
+    email_verified TINYINT(1) NOT NULL DEFAULT 1,
+    household_id INT NULL,
     password_changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     force_password_change TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_household FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE SET NULL,
     INDEX idx_user_username (username)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 2. Bảng Căn hộ (UC003)
-CREATE TABLE IF NOT EXISTS apartments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    apartment_code VARCHAR(20) NOT NULL UNIQUE, -- Đánh chỉ mục Index phục vụ UC010 tra cứu < 3s
-    floor INT NOT NULL,
-    area DOUBLE NOT NULL CHECK (area > 0),
-    owner_name VARCHAR(100) NOT NULL,
-    owner_cccd CHAR(12) NULL,
-    owner_phone VARCHAR(15) NOT NULL,
-    status ENUM('EMPTY', 'OCCUPIED') DEFAULT 'OCCUPIED',
+-- 4. Bảng Lịch sử mật khẩu
+CREATE TABLE IF NOT EXISTS password_histories (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    password_hash VARCHAR(100) NOT NULL,
+    changed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pwd_history_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_pwd_history_user_id (user_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 5. Bảng OTP Email (PB-002: lưu dạng băm BCrypt, TTL 5 phút)
+CREATE TABLE IF NOT EXISTS email_otps (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(120) NOT NULL,
+    otp_hash VARCHAR(100) NOT NULL,
+    purpose VARCHAR(30) NOT NULL, -- REGISTER / RESET_PASSWORD
+    expires_at DATETIME NOT NULL,
+    used TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_apartment_code (apartment_code),
-    INDEX idx_apartment_owner_name (owner_name)
-);
+    INDEX idx_email_otp_lookup (email, purpose, used)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 3. Bảng Nhân khẩu (UC004, UC005)
+-- 6. Bảng Nhân khẩu (PB-005: gắn household_id, CCCD 9|12 số, THUONG_TRU / TAM_TRU)
 CREATE TABLE IF NOT EXISTS residents (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    apartment_id INT NOT NULL,
+    household_id INT NULL,
+    apartment_id INT NULL,
     full_name VARCHAR(100) NOT NULL,
     dob DATE NOT NULL,
-    gender ENUM('Nam', 'Nữ', 'Khác') NOT NULL,
-    cccd_number CHAR(12) UNIQUE, -- Chặn trùng CCCD trên toàn tòa nhà
+    gender VARCHAR(20) NOT NULL,
+    cccd_number VARCHAR(12) UNIQUE,
     relationship_with_owner VARCHAR(50) NOT NULL,
-    residence_status ENUM('THUONG_TRU', 'TAM_TRU', 'TAM_VANG') DEFAULT 'THUONG_TRU',
-    is_active TINYINT(1) DEFAULT 1,
+    residence_status VARCHAR(20) NOT NULL DEFAULT 'THUONG_TRU', -- THUONG_TRU / TAM_TRU
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (apartment_id) REFERENCES apartments(id) ON DELETE CASCADE,
-    INDEX idx_resident_cccd (cccd_number)
-);
+    CONSTRAINT fk_resident_household FOREIGN KEY (household_id) REFERENCES households(id) ON DELETE CASCADE,
+    INDEX idx_resident_cccd (cccd_number),
+    INDEX idx_resident_household (household_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 4. Bảng Nhật ký biến động cư trú (UC005, UC006)
-CREATE TABLE IF NOT EXISTS residency_logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    resident_id INT NOT NULL,
-    log_type ENUM('TAM_TRU', 'TAM_VANG') NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    reason TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (resident_id) REFERENCES residents(id) ON DELETE CASCADE
-);
-
--- 5. Bảng Biểu phí & Khoản thu (UC007, UC008)
-CREATE TABLE IF NOT EXISTS fee_configs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fee_name VARCHAR(100) NOT NULL,
-    fee_type ENUM('SERVICE', 'MANAGEMENT', 'VOLUNTARY') NOT NULL,
-    unit_price DOUBLE NOT NULL DEFAULT 0, -- Phí DV: 2.500 - 16.500, Phí QL: 7.000, Tự nguyện: 0
-    is_mandatory TINYINT(1) DEFAULT 1,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 6. Bảng Hóa đơn Công nợ tháng (UC009, UC010 - Đảm bảo Idempotent)
-CREATE TABLE IF NOT EXISTS debt_invoices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    apartment_id INT NOT NULL,
-    billing_month VARCHAR(7) NOT NULL, -- Định dạng: 'YYYY-MM' (VD: '2026-11')
-    service_fee DOUBLE NOT NULL DEFAULT 0,
-    management_fee DOUBLE NOT NULL DEFAULT 0,
-    old_debt DOUBLE NOT NULL DEFAULT 0,
-    total_amount DOUBLE NOT NULL DEFAULT 0,
-    status ENUM('CHUA_THANH_TOAN', 'DA_THANH_TOAN') DEFAULT 'CHUA_THANH_TOAN',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- Khóa UNIQUE chặn tính chất chốt nợ trùng lặp (Idempotent)
-    UNIQUE KEY uq_apartment_month (apartment_id, billing_month),
-    FOREIGN KEY (apartment_id) REFERENCES apartments(id) ON DELETE CASCADE,
-    INDEX idx_invoice_status_month (status, billing_month)
-);
-
--- 7. Bảng Phiếu thu / Biên lai (UC011, UC012, UC013)
-CREATE TABLE IF NOT EXISTS receipts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    receipt_code VARCHAR(30) NOT NULL UNIQUE,
-    apartment_id INT NOT NULL,
-    cashier_id INT NOT NULL,
-    total_paid DOUBLE NOT NULL,
-    voluntary_fee DOUBLE DEFAULT 0,
-    payment_method ENUM('TIEN_MAT', 'CHUYEN_KHOAN') NOT NULL,
-    payment_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('VALID', 'CANCELLED') DEFAULT 'VALID',
-    cancel_reason TEXT NULL,
-    FOREIGN KEY (apartment_id) REFERENCES apartments(id),
-    FOREIGN KEY (cashier_id) REFERENCES users(id)
-);
-
--- 8. Bảng Nhật ký kiểm toán (Audit Log - NFR 4.1 & UC013, UC016)
+-- 7. Bảng Nhật ký kiểm toán (Audit Log - PB-001)
 CREATE TABLE IF NOT EXISTS audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -118,37 +108,19 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     details TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- ============================================================
 -- DỮ LIỆU KHỞI TẠO BAN ĐẦU (SEED DATA)
+-- Mật khẩu mặc định: BlueMoon@2026 (BCrypt)
 -- ============================================================
--- Mật khẩu mặc định: BlueMoon@2026 (đã băm bằng BCrypt)
 INSERT INTO users (
-    username, password_hash, full_name, role, is_active, is_deleted,
+    username, password_hash, full_name, email, phone, role,
+    is_active, is_deleted, approval_status, email_verified,
     password_changed_at, force_password_change
 ) VALUES
 ('admin_01', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
-    'Hoàng Phúc Hưng', 'ROLE_ADMIN', 1, 0, CURRENT_TIMESTAMP, 0),
-('thungan_01', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
-    'Nguyễn Thu Ngân', 'ROLE_CASHIER', 1, 0, CURRENT_TIMESTAMP, 0),
-('canbo_cudan', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
-    'Trần Quản Lý Cư Dân', 'ROLE_RESIDENT_MANAGER', 1, 0, CURRENT_TIMESTAMP, 0)
+    'Hoàng Phúc Hưng', 'admin@bluemoon.vn', '0901000001', 'ADMIN', 1, 0, 'APPROVED', 1, CURRENT_TIMESTAMP, 0),
+('resident_01', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
+    'Nguyễn Văn Cư Dân', 'resident@bluemoon.vn', '0912345678', 'RESIDENT', 1, 0, 'APPROVED', 1, CURRENT_TIMESTAMP, 0)
 ON DUPLICATE KEY UPDATE id = id;
-
--- Tài khoản kiểm thử: mật khẩu đúng nhưng bị vô hiệu hóa.
-INSERT INTO users (
-    username, password_hash, full_name, role, is_active, is_deleted,
-    password_changed_at, force_password_change
-) VALUES (
-    'locked_user', '$2a$10$BT.Ega74/t0itOyy65MjPOKD0bjXaIrwM631n.nfiGxV6lqAYY20K',
-    'Nhân Viên Cũ', 'ROLE_RESIDENT_MANAGER', 0, 0, CURRENT_TIMESTAMP, 0
-)
-ON DUPLICATE KEY UPDATE id = id;
-
--- Cấu hình phí mặc định theo SRS
-INSERT INTO fee_configs (fee_name, fee_type, unit_price, is_mandatory) VALUES
-('Phí dịch vụ chung cư', 'SERVICE', 12000, 1),
-('Phí quản lý vận hành', 'MANAGEMENT', 7000, 1),
-('Quỹ vì người nghèo', 'VOLUNTARY', 0, 0),
-('Quỹ Tết thiếu nhi', 'VOLUNTARY', 0, 0);

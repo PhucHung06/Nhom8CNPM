@@ -1,5 +1,6 @@
 package com.hust.se.bluemoon.config;
 
+import com.hust.se.bluemoon.entity.ApprovalStatus;
 import com.hust.se.bluemoon.entity.User;
 import com.hust.se.bluemoon.repository.UserRepository;
 import com.hust.se.bluemoon.util.JwtTokenProvider;
@@ -33,13 +34,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
             String username = tokenProvider.getUsernameFromJwt(token);
-            User user = userRepository.findByUsername(username).orElse(null);
+            User user = userRepository.findByUsernameAndIsDeletedFalse(username).orElse(null);
 
-            if (user != null && user.getIsActive() && !user.getIsDeleted()) {
+            if (user != null
+                    && Boolean.TRUE.equals(user.getIsActive())
+                    && Boolean.TRUE.equals(user.getEmailVerified())
+                    && user.getApprovalStatus() == ApprovalStatus.APPROVED) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         user,
                         null,
-                        List.of(new SimpleGrantedAuthority(user.getRole().name()))
+                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
                 );
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);

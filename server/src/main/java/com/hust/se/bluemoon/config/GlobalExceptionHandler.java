@@ -1,9 +1,18 @@
 package com.hust.se.bluemoon.config;
 
+import com.hust.se.bluemoon.exception.BusinessException;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.QueryTimeoutException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,59 +20,106 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<?> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, Object> response = new HashMap<>();
+    private Map<String, Object> buildBody(HttpStatus status, String errorType, String message) {
+        Map<String, Object> response = new LinkedHashMap<>();
         response.put("timestamp", LocalDateTime.now());
-        response.put("status", ex.getStatusCode().value());
-        response.put("message", ex.getReason());
-        return new ResponseEntity<>(response, ex.getStatusCode());
-    }
-
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.FORBIDDEN.value());
-        response.put("message", "Bạn không có quyền thực hiện chức năng này");
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.CONFLICT.value());
-        response.put("message",
-                "Dữ liệu đang được tham chiếu ở phân hệ khác hoặc bị trùng lặp, không thể thực hiện thao tác");
-        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        response.put("status", status.value());
+        response.put("errorType", errorType);
+        response.put("message", message);
+        return response;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        for (FieldError err : ex.getBindingResult().getFieldErrors()) {
+            fieldErrors.putIfAbsent(err.getField(), err.getDefaultMessage());
+        }
+        String firstMessage = ex.getBindingResult().getFieldError() != null
+                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+                : "Dữ liệu nhập vào không hợp lệ";
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", firstMessage);
+        body.put("fieldErrors", fieldErrors);
+        return ResponseEntity.badRequest().body(body);
+    }
 
-        FieldError fieldError = ex.getBindingResult().getFieldError();
-        String message = fieldError != null ? fieldError.getDefaultMessage() : "Dữ liệu nhập vào không hợp lệ";
-        response.put("message", message);
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(ConstraintViolationException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                "Dữ liệu tham số không hợp lệ");
+        return ResponseEntity.badRequest().body(body);
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException ex) {
+        Map<String, Object> body = buildBody(ex.getStatus(), "BUSINESS_ERROR", ex.getMessage());
+        body.put("errorCode", ex.getErrorCode());
+        return ResponseEntity.status(ex.getStatus()).body(body);
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatusException(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null) {
+            status = HttpStatus.BAD_REQUEST;
+        }
+        return ResponseEntity.status(status)
+                .body(buildBody(status, "BUSINESS_ERROR", ex.getReason() != null ? ex.getReason() : "Yêu cầu không hợp lệ"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("[DB CONFLICT] {}", ex.getMostSpecificCause().getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildBody(HttpStatus.CONFLICT, "DATABASE_CONFLICT",
+                        "Dữ liệu bị trùng lặp hoặc đang được tham chiếu ở phân hệ khác, không thể thực hiện thao tác"));
+    }
+
+    @ExceptionHandler({
+            CannotGetJdbcConnectionException.class,
+            DataAccessResourceFailureException.class,
+            QueryTimeoutException.class
+    })
+    public ResponseEntity<Map<String, Object>> handleDatabaseConnectionError(DataAccessException ex) {
+        log.error("[DB CONNECTION ERROR] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(buildBody(HttpStatus.SERVICE_UNAVAILABLE, "DATABASE_ERROR",
+                        "Không thể kết nối tới cơ sở dữ liệu. Vui lòng thử lại sau."));
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Map<String, Object>> handleGenericDatabaseError(DataAccessException ex) {
+        log.error("[DB ERROR] {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(buildBody(HttpStatus.INTERNAL_SERVER_ERROR, "DATABASE_ERROR",
+                        "Lỗi thao tác cơ sở dữ liệu. Vui lòng liên hệ quản trị viên."));
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ResponseEntity<Map<String, Object>> handleAccessDeniedException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(buildBody(HttpStatus.FORBIDDEN, "FORBIDDEN",
+                        "Bạn không có quyền thực hiện chức năng này"));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(buildBody(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED",
+                        "Phiên đăng nhập không hợp lệ hoặc đã hết hạn"));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
+        log.warn("[RUNTIME ERROR] {}", ex.getMessage());
+        return ResponseEntity.badRequest()
+                .body(buildBody(HttpStatus.BAD_REQUEST, "BUSINESS_ERROR", ex.getMessage()));
     }
 }

@@ -2,6 +2,7 @@ package com.hust.se.bluemoon.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,19 +27,14 @@ public class Apartment {
     @Column(nullable = false)
     private Double area;
 
-    @Column(name = "owner_name", nullable = false, length = 100)
-    private String ownerName;
-
-    @Column(name = "owner_cccd", columnDefinition = "char(12)")
-    private String ownerCccd;
-
-    @Column(name = "owner_phone", nullable = false, length = 15)
-    private String ownerPhone;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
-    private ApartmentStatus status = ApartmentStatus.OCCUPIED;
+    private ApartmentStatus status = ApartmentStatus.AVAILABLE;
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

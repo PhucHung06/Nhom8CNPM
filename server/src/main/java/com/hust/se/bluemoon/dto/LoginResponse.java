@@ -1,11 +1,12 @@
 package com.hust.se.bluemoon.dto;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,8 +19,11 @@ public class LoginResponse {
     private Integer userId;
     private String username;
     private String fullName;
+    private String email;
     private String role;
-    // Thông tin phục vụ cảnh báo & bắt buộc đổi mật khẩu định kỳ (US-014)
+    private Integer householdId;
+    private String apartmentCode;
+    private List<MenuItemDto> menus;
     private boolean passwordExpired;
     private long daysSinceLastChange;
     private long maxPasswordAgeDays;

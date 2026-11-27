@@ -3,6 +3,7 @@ package com.hust.se.bluemoon.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -20,9 +21,9 @@ public class Resident {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "apartment_id", nullable = false)
+    @JoinColumn(name = "household_id", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Apartment apartment;
+    private Household household;
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -30,10 +31,10 @@ public class Resident {
     @Column(nullable = false)
     private LocalDate dob;
 
-    @Column(nullable = false, columnDefinition = "ENUM('Nam', 'Nữ', 'Khác')")
+    @Column(nullable = false, length = 20)
     private String gender;
 
-    @Column(name = "cccd_number", columnDefinition = "char(12)", unique = true)
+    @Column(name = "cccd_number", length = 12, unique = true)
     private String cccdNumber;
 
     @Column(name = "relationship_with_owner", nullable = false, length = 50)
@@ -44,9 +45,13 @@ public class Resident {
     @Builder.Default
     private ResidenceStatus residenceStatus = ResidenceStatus.THUONG_TRU;
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+    @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
