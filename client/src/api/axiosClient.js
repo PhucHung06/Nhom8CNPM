@@ -1,4 +1,3 @@
-// FILE: client/src/api/axiosClient.js
 import axios from 'axios';
 
 const axiosClient = axios.create({
@@ -9,10 +8,9 @@ const axiosClient = axios.create({
   timeout: 10000,
 });
 
-// Tự động đính kèm JWT Token vào mọi request gửi lên Spring Boot
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken') || localStorage.getItem('token'); // Khớp với LoginResponse DTO
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,16 +19,36 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+const PUBLIC_AUTH_PATHS = ['/login', '/register', '/forgot-password'];
+
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userSession');
+      const currentPath = window.location.pathname;
+      if (!PUBLIC_AUTH_PATHS.includes(currentPath)) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
 );
+
+export function getApiErrorMessage(err, fallback = 'Đã xảy ra lỗi. Vui lòng thử lại.') {
+  const data = err?.response?.data;
+  if (!data) {
+    return err?.message || fallback;
+  }
+  if (data.errorType === 'DATABASE_ERROR') {
+    return `[Lỗi CSDL] ${data.message}`;
+  }
+  if (data.errorType === 'VALIDATION_ERROR' && data.fieldErrors) {
+    const first = Object.values(data.fieldErrors)[0];
+    if (first) return first;
+  }
+  return data.message || fallback;
+}
 
 export default axiosClient;

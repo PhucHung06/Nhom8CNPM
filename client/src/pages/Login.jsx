@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Building2, Lock, User } from 'lucide-react';
-import axiosClient from '../api/axiosClient';
+import { authApi } from '../api/authApi';
+import { getApiErrorMessage } from '../api/axiosClient';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -15,18 +16,25 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const res = await axiosClient.post('/auth/login', { username, password });
-      const token = res.data.accessToken || res.data.token;
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({
-        username: res.data.username,
-        fullName: res.data.fullName,
-        role: res.data.role,
-      }));
-      navigate('/apartments');
+      const res = await authApi.login({ username, password });
+      const data = res.data;
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          userId: data.userId,
+          username: data.username,
+          fullName: data.fullName,
+          email: data.email,
+          role: data.role,
+          householdId: data.householdId,
+          apartmentCode: data.apartmentCode,
+          menus: data.menus || [],
+        })
+      );
+      navigate(data.role === 'ADMIN' ? '/apartments' : '/resident/home');
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
+      setError(getApiErrorMessage(err, 'Đăng nhập thất bại. Vui lòng kiểm tra lại.'));
     } finally {
       setLoading(false);
     }
@@ -34,24 +42,22 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-      <div className="bg-white border border-slate-200 rounded-lg shadow-sm w-full max-w-md p-8">
+      <div className="bg-white border border-slate-300 rounded-lg shadow-sm w-full max-w-md p-8 text-black">
         <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center mb-3">
             <Building2 className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">BlueMoon Apartment</h1>
-          <p className="text-sm text-slate-500 mt-1">Hệ thống Quản lý Chung cư & Thu phí</p>
+          <h1 className="text-xl font-bold text-black">BlueMoon Apartment</h1>
+          <p className="text-slate-600 mt-1">Hệ thống Quản lý Chung cư Web v1.0</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded">
-            {error}
-          </div>
+          <div className="mb-4 p-3 bg-red-50 border border-red-300 text-red-800 rounded">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Tên đăng nhập</label>
+            <label className="block font-medium text-black mb-1">Tên đăng nhập</label>
             <div className="relative">
               <User className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
@@ -59,14 +65,14 @@ export default function Login() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-600"
+                placeholder="admin_01"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-blue-600"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+            <label className="block font-medium text-black mb-1">Mật khẩu</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
@@ -75,7 +81,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-600"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded focus:outline-none focus:border-blue-600"
               />
             </div>
           </div>
@@ -83,11 +89,20 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 text-white font-medium text-sm rounded disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded disabled:opacity-50"
           >
             {loading ? 'Đang xác thực...' : 'Đăng nhập'}
           </button>
         </form>
+
+        <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between text-blue-700">
+          <Link to="/register" className="hover:underline">
+            Đăng ký tài khoản cư dân
+          </Link>
+          <Link to="/forgot-password" className="hover:underline">
+            Quên mật khẩu?
+          </Link>
+        </div>
       </div>
     </div>
   );
