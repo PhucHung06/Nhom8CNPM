@@ -23,6 +23,8 @@ export default function HouseholdsPage() {
     headCccd: '',
     phone: '',
     moveInDate: new Date().toISOString().slice(0, 10),
+    headDob: '1990-01-01',
+    headGender: 'Nam',
   });
 
   const [editModal, setEditModal] = useState({ open: false, household: null });
@@ -58,6 +60,8 @@ export default function HouseholdsPage() {
         headCccd: '',
         phone: '',
         moveInDate: new Date().toISOString().slice(0, 10),
+        headDob: '1990-01-01',
+        headGender: 'Nam',
       });
       setMoveInOpen(true);
     } catch (err) {
@@ -313,6 +317,33 @@ export default function HouseholdsPage() {
                     />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-medium mb-1">Ngày sinh chủ hộ</label>
+                    <input
+                      type="date"
+                      required
+                      value={moveInForm.headDob}
+                      onChange={(e) => setMoveInForm({ ...moveInForm, headDob: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1">Giới tính chủ hộ</label>
+                    <select
+                      value={moveInForm.headGender}
+                      onChange={(e) => setMoveInForm({ ...moveInForm, headGender: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-300 rounded bg-white"
+                    >
+                      <option value="Nam">Nam</option>
+                      <option value="Nữ">Nữ</option>
+                      <option value="Khác">Khác</option>
+                    </select>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500">
+                  Hệ thống sẽ tự động thêm chủ hộ vào danh sách Nhân khẩu (Thường trú).
+                </p>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"

@@ -50,10 +50,15 @@ public class HouseholdService {
             throw BusinessException.conflict("Căn hộ " + apartment.getApartmentCode() + " hiện không trống (không ở trạng thái AVAILABLE)");
         }
 
+        String headCccd = request.getHeadCccd().trim();
+        if (residentRepository.existsByCccdNumberAndIsDeletedFalseAndIsActiveTrue(headCccd)) {
+            throw BusinessException.conflict("Số CCCD chủ hộ '" + headCccd + "' đã tồn tại trên hệ thống");
+        }
+
         Household household = Household.builder()
                 .apartment(apartment)
                 .headName(request.getHeadName().trim())
-                .headCccd(request.getHeadCccd().trim())
+                .headCccd(headCccd)
                 .phone(request.getPhone().trim())
                 .moveInDate(request.getMoveInDate() != null ? request.getMoveInDate() : LocalDate.now())
                 .status(HouseholdStatus.ACTIVE)
@@ -64,6 +69,24 @@ public class HouseholdService {
 
         apartment.setStatus(ApartmentStatus.OCCUPIED);
         apartmentRepository.save(apartment);
+
+        LocalDate headDob = request.getHeadDob() != null ? request.getHeadDob() : LocalDate.of(1990, 1, 1);
+        String headGender = (request.getHeadGender() != null && !request.getHeadGender().isBlank())
+                ? request.getHeadGender().trim()
+                : "Nam";
+
+        Resident headResident = Resident.builder()
+                .household(saved)
+                .fullName(saved.getHeadName())
+                .dob(headDob)
+                .gender(headGender)
+                .cccdNumber(saved.getHeadCccd())
+                .relationshipWithOwner("Chủ hộ")
+                .residenceStatus(ResidenceStatus.THUONG_TRU)
+                .isActive(true)
+                .isDeleted(false)
+                .build();
+        residentRepository.save(headResident);
 
         return toResponse(saved);
     }
