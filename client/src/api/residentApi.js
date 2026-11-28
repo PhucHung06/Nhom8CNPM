@@ -13,4 +13,17 @@ export const residentApi = {
   update: (id, payload) => axiosClient.put(`/residents/${id}`, payload),
   remove: (id) => axiosClient.delete(`/residents/${id}`),
   getMyHousehold: () => axiosClient.get('/resident/my-household'),
+  getMyUtilities: (params = {}) => {
+    const cleanParams = {};
+    if (params.billingPeriod?.trim()) cleanParams.billingPeriod = params.billingPeriod.trim();
+    if (params.serviceType && params.serviceType !== 'ALL') cleanParams.serviceType = params.serviceType;
+    return axiosClient.get('/resident/utilities', { params: cleanParams });
+  },
+  getMyInvoices: (params = {}) => {
+    const cleanParams = {};
+    if (params.billingPeriod?.trim()) cleanParams.billingPeriod = params.billingPeriod.trim();
+    if (params.status && params.status !== 'ALL') cleanParams.status = params.status;
+    return axiosClient.get('/resident/invoices', { params: cleanParams });
+  },
+  getMyInvoiceDetail: (id) => axiosClient.get(`/resident/invoices/${id}`),
 };

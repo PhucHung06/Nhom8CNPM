@@ -1,6 +1,7 @@
 package com.hust.se.bluemoon.config;
 
 import com.hust.se.bluemoon.exception.BusinessException;
+import com.hust.se.bluemoon.exception.ExcelImportValidationException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -17,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -55,6 +57,20 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
                 "Dữ liệu tham số không hợp lệ");
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(ExcelImportValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleExcelImportValidation(ExcelImportValidationException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage());
+        body.put("rowErrors", ex.getRowErrors());
+        return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.badRequest()
+                .body(buildBody(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                        "Dung lượng tệp tải lên vượt quá giới hạn cho phép (tối đa 5MB)"));
     }
 
     @ExceptionHandler(BusinessException.class)

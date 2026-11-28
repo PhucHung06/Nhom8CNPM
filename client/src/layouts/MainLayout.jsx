@@ -1,18 +1,22 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
+  Banknote,
   Building2,
+  CalendarRange,
   ChevronLeft,
   ChevronRight,
   Home,
   KeyRound,
   LogOut,
   Menu,
+  Receipt,
   ShieldCheck,
   UserCheck,
   Users,
   UsersRound,
   X,
+  Zap,
 } from 'lucide-react';
 import { authApi } from '../api/authApi';
 import { getApiErrorMessage } from '../api/axiosClient';
@@ -21,6 +25,10 @@ const MENU_ICONS = {
   apartments: Home,
   households: UsersRound,
   residents: Users,
+  fees: Receipt,
+  utilities: Zap,
+  billing_cycles: CalendarRange,
+  invoices: Banknote,
   admin_users: ShieldCheck,
   resident_home: Building2,
 };
@@ -31,6 +39,10 @@ function getDefaultMenus(role) {
       { key: 'apartments', label: 'Quản lý Căn hộ', path: '/apartments' },
       { key: 'households', label: 'Quản lý Hộ gia đình', path: '/households' },
       { key: 'residents', label: 'Quản lý Nhân khẩu', path: '/residents' },
+      { key: 'fees', label: 'Quản lý Khoản thu', path: '/fees' },
+      { key: 'utilities', label: 'Điện / Nước / Internet', path: '/utilities' },
+      { key: 'billing_cycles', label: 'Đợt thu & Hóa đơn', path: '/billing-cycles' },
+      { key: 'invoices', label: 'Thu tiền mặt', path: '/invoices' },
       { key: 'admin_users', label: 'Tài khoản & Duyệt cư dân', path: '/admin/users' },
     ];
   }
