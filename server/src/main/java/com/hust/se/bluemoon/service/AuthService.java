@@ -210,6 +210,10 @@ public class AuthService {
                     new MenuItemDto("apartments", "Quản lý Căn hộ", "/apartments"),
                     new MenuItemDto("households", "Quản lý Hộ gia đình", "/households"),
                     new MenuItemDto("residents", "Quản lý Nhân khẩu", "/residents"),
+                    new MenuItemDto("fees", "Quản lý Khoản thu", "/fees"),
+                    new MenuItemDto("utilities", "Điện / Nước / Internet", "/utilities"),
+                    new MenuItemDto("billing_cycles", "Đợt thu & Hóa đơn", "/billing-cycles"),
+                    new MenuItemDto("invoices", "Thu tiền mặt", "/invoices"),
                     new MenuItemDto("admin_users", "Tài khoản & Duyệt cư dân", "/admin/users")
             );
         }
