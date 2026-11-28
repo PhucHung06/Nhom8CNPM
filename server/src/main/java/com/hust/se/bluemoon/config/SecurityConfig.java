@@ -72,7 +72,11 @@ public class SecurityConfig {
                                 "/api/admin/**",
                                 "/api/apartments/**",
                                 "/api/households/**",
-                                "/api/residents/**"
+                                "/api/residents/**",
+                                "/api/fees/**",
+                                "/api/utilities/**",
+                                "/api/billing-cycles/**",
+                                "/api/invoices/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

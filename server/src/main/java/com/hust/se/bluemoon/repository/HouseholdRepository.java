@@ -19,6 +19,11 @@ public interface HouseholdRepository extends JpaRepository<Household, Integer> {
 
     boolean existsByApartmentIdAndStatusAndIsDeletedFalse(Integer apartmentId, HouseholdStatus status);
 
+    @Query("SELECT h FROM Household h JOIN FETCH h.apartment a " +
+            "WHERE h.status = 'ACTIVE' AND h.isDeleted = false " +
+            "ORDER BY a.floor ASC, a.apartmentCode ASC")
+    List<Household> findActiveHouseholdsWithApartment();
+
     @Query("SELECT h FROM Household h JOIN FETCH h.apartment a WHERE h.isDeleted = false " +
             "AND (:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(h.headName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

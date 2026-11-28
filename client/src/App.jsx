@@ -8,6 +8,10 @@ import HouseholdsPage from './pages/HouseholdsPage';
 import ResidentsPage from './pages/ResidentsPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import ResidentHomePage from './pages/ResidentHomePage';
+import FeesPage from './pages/FeesPage';
+import UtilitiesPage from './pages/UtilitiesPage';
+import BillingCyclesPage from './pages/BillingCyclesPage';
+import InvoicesPage from './pages/InvoicesPage';
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem('accessToken');
@@ -77,6 +81,38 @@ export default function App() {
             element={
               <RoleRoute allowedRoles={['ADMIN']}>
                 <AdminUsersPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="fees"
+            element={
+              <RoleRoute allowedRoles={['ADMIN']}>
+                <FeesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="utilities"
+            element={
+              <RoleRoute allowedRoles={['ADMIN']}>
+                <UtilitiesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="billing-cycles"
+            element={
+              <RoleRoute allowedRoles={['ADMIN']}>
+                <BillingCyclesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="invoices"
+            element={
+              <RoleRoute allowedRoles={['ADMIN']}>
+                <InvoicesPage />
               </RoleRoute>
             }
           />
