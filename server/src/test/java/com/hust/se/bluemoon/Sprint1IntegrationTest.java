@@ -255,8 +255,16 @@ class Sprint1IntegrationTest {
                                 aptId)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.residentCount").value(1))
                 .andReturn();
         int householdId = objectMapper.readTree(hhRes.getResponse().getContentAsString()).get("id").asInt();
+
+        mockMvc.perform(get("/api/residents")
+                        .param("householdId", String.valueOf(householdId))
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].relationshipWithOwner").value("Chủ hộ"))
+                .andExpect(jsonPath("$[0].cccdNumber").value("001085009999"));
 
         // Không cho phép Move-in trùng vào căn đang OCCUPIED và không cho xóa mềm căn OCCUPIED
         mockMvc.perform(post("/api/households/move-in")

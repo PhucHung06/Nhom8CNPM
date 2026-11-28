@@ -26,4 +26,8 @@ public class MoveInRequest {
     private String phone;
 
     private LocalDate moveInDate;
+
+    private LocalDate headDob;
+
+    private String headGender;
 }
